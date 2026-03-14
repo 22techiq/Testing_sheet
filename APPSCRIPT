@@ -226,7 +226,9 @@ function json(obj){
 
 
 
-the above  backend appscript is working as intended it is only the Status column stuck at "PENDING" ,drawing from the below appscript correct on the above without interfering with its existing functionality drawing from the below which has status column transitioning as intendedconst SHEET_NAME = "PAYMENTS";
+the above  backend appscript is working as intended it is only the Status column stuck at "PENDING" ,drawing from the below appscript correct on the above without interfering with its existing functionality drawing from the below which has status column transitioning as intended
+
+const SHEET_NAME = "PAYMENTS";
 
 
 /* ==============================
