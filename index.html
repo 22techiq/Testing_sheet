@@ -362,7 +362,7 @@
    CONFIG
 ============================== */
 
-const GSHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby17JhMHf416eFpGkQjpKFALMp_tZW5aG9zBaB7f8N0F_PlCgfc4tVyOZrsi-CjN7ma/exec";
+const GSHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxVAhLCuLpl9o_ZS3hNgQilySviX-WfXFSGnjocEJ0rd3cC2nV8uQwtbHLGthMAL5-2/exec";
 
 
 /* ==============================
@@ -647,7 +647,9 @@ document.getElementById("checkout-form").addEventListener("submit",async functio
     return
 
   }
-
+/*Payload not submitting Name*/
+  
+  /*
   const payload={
 
     action:"initiatePayment",
@@ -658,7 +660,25 @@ document.getElementById("checkout-form").addEventListener("submit",async functio
     amount:cartTotal(cart)
 
   }
+*/
 
+  /*corrected payload submitting Name etc as espected*/
+  const payload={
+
+  action:"initiatePayment",
+  orderId:"ORD-"+Date.now(),
+
+  name:document.getElementById("cust-name").value.trim(),
+
+  email:document.getElementById("cust-email").value.trim(),
+
+  phone:document.getElementById("cust-phone").value.trim(),
+
+  amount:cartTotal(cart)
+
+}
+/*End of corrected payload submitting Name etc as espected*/
+  
   const btn=e.submitter
 
   btn.disabled=true
