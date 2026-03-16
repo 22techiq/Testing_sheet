@@ -1,3 +1,4 @@
+/*ORIGINAL CODE WORKING AS INTENTED*/
 const SHEET_NAME = "PAYMENTS";
 
 
@@ -246,16 +247,16 @@ function json(obj){
   .setMimeType(ContentService.MimeType.JSON);
 
 }
+/*END OF ORIGINAL CODE*/
 
 
 
 
 
 
+//To add automatic email notifications for successful and failed payments, you only need to modify two places and add one new function. This will not interfere with your existing logic.
+//Your flow remains:
 
-To add automatic email notifications for successful and failed payments, you only need to modify two places and add one new function. This will not interfere with your existing logic.
-Your flow remains:
-Copy code
 
 Customer pays
    ↓
@@ -263,19 +264,16 @@ IntaSend sends webhook
    ↓
 handleWebhook() updates status
    ↓
-Email sent automatically
-Below is exactly where to add the code.
-1️⃣ Add Admin Email at the Top of the Script
-Place this right under your existing constant.
-JavaScript
-Copy code
+//Email sent automatically
+//Below is exactly where to add the code.
+//1️⃣ Add Admin Email at the Top of the Script
+//Place this right under your existing constant.
 const SHEET_NAME = "PAYMENTS";
 const ADMIN_EMAIL = "admin@featherfield.com";
-Replace with your real admin email.
-2️⃣ Modify the Webhook Handler
+//Replace with your real admin email.
+//2️⃣ Modify the Webhook Handler
 Inside your handleWebhook() function, locate this section:
-JavaScript
-Copy code
+
 sheet.getRange(i+1,7).setValue(status);
 
 /* Store webhook payload for verification */
@@ -298,18 +296,17 @@ sendPaymentEmail(
   data[i][4],  // amount
   status
 );
-Explanation of the indexes from your sheet:
-Copy code
+//Explanation of the indexes from your sheet:
+
 
 data[i][0] = OrderID
 data[i][1] = Name
 data[i][2] = Email
 data[i][3] = Phone
 data[i][4] = Amount
-3️⃣ Add the Email Function at the Bottom of the Script
-Add this below your json() helper.
-JavaScript
-Copy code
+//3️⃣ Add the Email Function at the Bottom of the Script
+//Add this below your json() helper.
+
 function sendPaymentEmail(customerName,email,orderId,amount,status){
 
 let subject="";
@@ -363,9 +360,9 @@ body:
 });
 
 }
-4️⃣ Final Script Flow
-Your backend will now automatically:
-Copy code
+//4️⃣ Final Script Flow
+//Your backend will now automatically:
+
 
 Customer clicks Pay
         ↓
@@ -382,7 +379,7 @@ Status updated in sheet
 sendPaymentEmail()
         ↓
 Customer + Admin receive email
-5️⃣ Result
+//5️⃣ Result
 Emails will be sent for:
 Event
 Email
