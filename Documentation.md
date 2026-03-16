@@ -246,3 +246,147 @@ function json(obj){
   .setMimeType(ContentService.MimeType.JSON);
 
 }
+
+
+
+
+
+
+
+To add automatic email notifications for successful and failed payments, you only need to modify two places and add one new function. This will not interfere with your existing logic.
+Your flow remains:
+Copy code
+
+Customer pays
+   ↓
+IntaSend sends webhook
+   ↓
+handleWebhook() updates status
+   ↓
+Email sent automatically
+Below is exactly where to add the code.
+1️⃣ Add Admin Email at the Top of the Script
+Place this right under your existing constant.
+JavaScript
+Copy code
+const SHEET_NAME = "PAYMENTS";
+const ADMIN_EMAIL = "admin@featherfield.com";
+Replace with your real admin email.
+2️⃣ Modify the Webhook Handler
+Inside your handleWebhook() function, locate this section:
+JavaScript
+Copy code
+sheet.getRange(i+1,7).setValue(status);
+
+/* Store webhook payload for verification */
+sheet.getRange(i+1,9).setValue(JSON.stringify(payload));
+Immediately after it, insert the email trigger.
+Modified section
+JavaScript
+Copy code
+sheet.getRange(i+1,7).setValue(status);
+
+/* Store webhook payload for verification */
+sheet.getRange(i+1,9).setValue(JSON.stringify(payload));
+
+/* SEND EMAIL NOTIFICATION */
+
+sendPaymentEmail(
+  data[i][1],  // customer name
+  data[i][2],  // customer email
+  data[i][0],  // order ID
+  data[i][4],  // amount
+  status
+);
+Explanation of the indexes from your sheet:
+Copy code
+
+data[i][0] = OrderID
+data[i][1] = Name
+data[i][2] = Email
+data[i][3] = Phone
+data[i][4] = Amount
+3️⃣ Add the Email Function at the Bottom of the Script
+Add this below your json() helper.
+JavaScript
+Copy code
+function sendPaymentEmail(customerName,email,orderId,amount,status){
+
+let subject="";
+let message="";
+
+if(status === "COMPLETE"){
+
+subject = "Payment Successful - Order " + orderId;
+
+message =
+"Hello "+customerName+",\n\n"+
+"Your payment was successful.\n\n"+
+"Order ID: "+orderId+"\n"+
+"Amount: KES "+amount+"\n\n"+
+"Thank you for shopping with FeatherField.";
+
+}
+
+if(status === "FAILED"){
+
+subject = "Payment Failed - Order " + orderId;
+
+message =
+"Hello "+customerName+",\n\n"+
+"Your payment attempt failed.\n\n"+
+"Order ID: "+orderId+"\n"+
+"Amount: KES "+amount+"\n\n"+
+"Please try again.";
+
+}
+
+/* Email customer */
+
+MailApp.sendEmail({
+to: email,
+subject: subject,
+body: message
+});
+
+/* Email admin */
+
+MailApp.sendEmail({
+to: ADMIN_EMAIL,
+subject: subject + " (Admin Notification)",
+body:
+"Customer: "+customerName+"\n"+
+"Email: "+email+"\n"+
+"Order ID: "+orderId+"\n"+
+"Amount: KES "+amount+"\n"+
+"Status: "+status
+});
+
+}
+4️⃣ Final Script Flow
+Your backend will now automatically:
+Copy code
+
+Customer clicks Pay
+        ↓
+initiatePayment()
+        ↓
+STK Push sent
+        ↓
+Webhook received
+        ↓
+handleWebhook()
+        ↓
+Status updated in sheet
+        ↓
+sendPaymentEmail()
+        ↓
+Customer + Admin receive email
+5️⃣ Result
+Emails will be sent for:
+Event
+Email
+Payment COMPLETE
+Customer + Admin
+Payment FAILED
+Customer + Admin
